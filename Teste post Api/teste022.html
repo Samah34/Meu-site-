@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agendas abertas</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://dochub.com/isaac-vvs/7vA0q9lw2bW5A9XwPDNOxd/img-2480-jpg?gdiExists=1j7DYuKr0WtZcDLC8ougcTFW2reAIOcWL') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    #videoContainer {
+      width: 640px;
+      margin: 60px auto;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    #meuVideo {
+      width: 100%;
+      display: block;
+    }
+
+    #controles {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      background: #000000;
+    }
+
+    #controles button {
+      background: #f788d2;
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #controles button:hover {
+      background: #11c8ff;
+    }
+
+    #formulario {
+      width: 640px;
+      margin: 20px auto;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #numero {
+      padding: 10px;
+      width: 70%;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    #formulario button {
+      padding: 10px 16px;
+      background-color: #00d084;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #formulario button:hover {
+      background-color: #00a96e;
+    }
+
+    #mensagemRetorno {
+      width: 640px;
+      margin: 10px auto;
+      text-align: center;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .sucesso {
+      background-color: #008c5a;
+      color: #fff;
+    }
+
+    .erro {
+      background-color: #cc3333;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="videoContainer">
+    <video id="meuVideo">
+      <source src="./Teste post Api/meu-video.mp4.mp4" type="video/mp4">
+      Seu navegador não suporta vídeos.
+    </video>
+
+    <div id="controles">
+      <button onclick="playVideo()"> Play</button>
+      <button onclick="pauseVideo()"> Pause</button>
+      <button onclick="restartVideo()"> Reiniciar</button>
+      <button onclick="toggleMute()"> Mute/Unmute</button>
+    </div>
+  </div>
+
+  <!-- Formulário com ícone do WhatsApp -->
+  <div id="formulario">
+    <input type="tel" id="numero" placeholder="Digite seu número com DDD" />
+    <button onclick="enviarNumero()">
+      <img src="https://img.icons8.com/ios-filled/20/ffffff/whatsapp.png" alt="WhatsApp" />
+      Enviar
+    </button>
+  </div>
+
+  <!-- Mensagem de retorno -->
+  <div id="mensagemRetorno"></div>
+
+  <script>
+    const video = document.getElementById("meuVideo");
+
+    function playVideo() {
+      video.play();
+    }
+
+    function pauseVideo() {
+      video.pause();
+    }
+
+    function restartVideo() {
+      video.currentTime = 0;
+      video.play();
+    }
+
+    function toggleMute() {
+      video.muted = !video.muted;
+    }
+
+    function enviarNumero() {
+      const numeroInput = document.getElementById("numero");
+      const mensagemDiv = document.getElementById("mensagemRetorno");
+      const numero = numeroInput.value.replace(/\D/g, ''); // remove tudo que não for número
+
+      mensagemDiv.innerHTML = '';
+      mensagemDiv.className = '';
+
+      if (numero.length < 10) {
+        mensagemDiv.innerHTML = "Número inválido. Use o formato com DDD, ex: 21999999999";
+        mensagemDiv.classList.add("erro");
+        return;
+      }
+
+      fetch("https://api.cpluschat.com.br/automacao/webhook/5c1e16a6-bf43-4116-b62f-4dc3822f972f", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ numero: numero })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Erro na requisição");
+        mensagemDiv.innerHTML = "✅ Número enviado com sucesso!";
+        mensagemDiv.classList.add("sucesso");
+        numeroInput.value = "";
+      })
+      .catch(error => {
+        mensagemDiv.innerHTML = "❌ Erro ao enviar o número.";
+        mensagemDiv.classList.add("erro");
+        console.error(error);
+      });
+    }
+  </script>
+
+</body>
+</html>
